@@ -6,9 +6,9 @@ typedef struct {
     int length;
 } STRING;
 
-STRING *new(char *);
-void delete(STRING *);
-void concat(STRING *, STRING *);
+STRING *newstr(char *);
+void delstr(STRING *);
+void concat(int n, STRING *, ...);
 STRING *substring(STRING *, int, int);
 STRING **split(STRING *, int *, char *);
 void delsplit(STRING **, int);
