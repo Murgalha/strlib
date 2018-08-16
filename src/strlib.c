@@ -27,7 +27,7 @@ void delstr(STRING *_self) {
 
 STRING *join(int n, STRING *_self, ...) {
     if(!_self)
-        return;
+        return NULL;
     
     va_list vl;
     int t;
@@ -98,7 +98,7 @@ STRING *substring(STRING *_self, int begin, int end) {
 }
 
 STRING **split(STRING *_self, int *nstrings, char *delims) {
-    if(!self || !nstrings)
+    if(!_self || !nstrings)
         return NULL;
     if(!delims) {
         STRING **allstrings = (STRING **) malloc (sizeof(STRING *));
