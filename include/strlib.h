@@ -8,6 +8,7 @@ typedef struct {
 
 STRING *newstr(char *);
 void delstr(STRING *);
+STRING *join(int n, STRING *, ...);
 void concat(int n, STRING *, ...);
 STRING *substring(STRING *, int, int);
 STRING **split(STRING *, int *, char *);

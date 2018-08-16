@@ -21,6 +21,29 @@ void delstr(STRING *_self) {
     free(_self);
 }
 
+STRING *join(int n, STRING *_self, ...) {
+    va_list vl;
+    int t;
+    unsigned int i;
+    n--;
+    STRING *ret = newstr(_self->charptr);
+
+    va_start(vl, _self);
+
+    for(t = 0; t < n; t++) {
+        STRING* _str = va_arg(vl, STRING*);
+        ret->charptr = (char *) realloc (ret->charptr,
+                                           sizeof(char)*(ret->length+_str->length+1));
+
+        for(i = 0; i < _str->length; i++)
+            (ret->charptr)[ret->length+i] = (_str->charptr)[i];
+        ret->length += (_str->length);
+    }
+    va_end(vl);
+    (ret->charptr)[ret->length] = '\0';
+    return ret;
+}
+
 void concat(int n, STRING *_self, ...) {
     va_list vl;
     int t;
@@ -102,9 +125,9 @@ void delsplit(STRING **s, int n) {
 }
 
 int main() {
-    STRING* str1 = newstr("teste");
-    STRING* str2 = newstr("oi");
-    STRING* str3 = newstr("tchau");
-    concat(3, str1, str2, str3);
-    printf("%s\n", str1->charptr);
+    STRING* s = newstr("oi, ");
+    STRING* t = newstr("me chamo ");
+    STRING* r = newstr("murilo");
+    STRING* a = join(3, s, t, r);
+    printf("%s\n", a->charptr);
 }
