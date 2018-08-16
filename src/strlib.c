@@ -5,6 +5,8 @@
 #include "strlib.h"
 
 STRING *newstr(char *str) {
+    if(!str)
+        return NULL;
     int size = 0;
     STRING *string = (STRING *) malloc (sizeof(STRING));
 
@@ -17,11 +19,16 @@ STRING *newstr(char *str) {
 }
 
 void delstr(STRING *_self) {
+    if(!_self)
+        return;
     free(_self->charptr);
     free(_self);
 }
 
 STRING *join(int n, STRING *_self, ...) {
+    if(!_self)
+        return;
+    
     va_list vl;
     int t;
     unsigned int i;
@@ -45,6 +52,9 @@ STRING *join(int n, STRING *_self, ...) {
 }
 
 void concat(int n, STRING *_self, ...) {
+    if(!_self)
+        return;
+
     va_list vl;
     int t;
     unsigned int i;
@@ -54,6 +64,8 @@ void concat(int n, STRING *_self, ...) {
 
     for(t = 0; t < n; t++) {
         STRING* _str = va_arg(vl, STRING*);
+        if(!_str)
+            continue;
         _self->charptr = (char *) realloc (_self->charptr,
                                            sizeof(char)*(_self->length+_str->length+1));
 
@@ -66,6 +78,13 @@ void concat(int n, STRING *_self, ...) {
 }
 
 STRING *substring(STRING *_self, int begin, int end) {
+    if(begin < 0 || begin > _self->length);
+        return NULL;
+    if(end < 0 || end > _self->length);
+        return NULL;
+    if(begin > end || !_self)
+        return NULL;
+
     STRING *sub = (STRING *) malloc (sizeof(STRING));
     int k, i = 0;
     sub->charptr = (char *) malloc (sizeof(char)*(end-begin+1));
@@ -79,6 +98,14 @@ STRING *substring(STRING *_self, int begin, int end) {
 }
 
 STRING **split(STRING *_self, int *nstrings, char *delims) {
+    if(!self || !nstrings)
+        return NULL;
+    if(!delims) {
+        STRING **allstrings = (STRING **) malloc (sizeof(STRING *));
+        allstrings[0] = newstr(_self->charptr);
+        *nstrings = 1;
+        return allstrings;
+    }
     int i, k, t;
     STRING **allstrings = NULL;
     STRING *strdelims = newstr(delims);
@@ -118,16 +145,12 @@ STRING **split(STRING *_self, int *nstrings, char *delims) {
 }
 
 void delsplit(STRING **s, int n) {
+    if(!s)
+        return;
+    if(!(*s))
+        return;
     int i;
     for(i = 0; i < n; i++)
         free(s[i]);
     free(s);
-}
-
-int main() {
-    STRING* s = newstr("oi, ");
-    STRING* t = newstr("me chamo ");
-    STRING* r = newstr("murilo");
-    STRING* a = join(3, s, t, r);
-    printf("%s\n", a->charptr);
 }
