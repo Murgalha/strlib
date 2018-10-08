@@ -1,35 +1,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
 #include "strlib.h"
 
-STRING *newstr(char *str) {
+char *newstr(char *str) {
     /* Check if pointer is NULL */
     if(!str)
         return NULL;
-    int size = 0;
-    STRING *string = (STRING *) malloc (sizeof(STRING));
-
-    /* Set string length and copy argument into alloc'd string pointer */
-    string->length = strlen(str);
-    string->charptr = (char *) malloc (sizeof(char)*(string->length+1));
-    memcpy(string->charptr, str, string->length);
-    string->charptr[string->length] = '\0';
+    int size = strlen(str);
+    char *string = NULL;
+    
+    /* Copy argument into alloc'd string pointer */
+    string = (char *) malloc (sizeof(char)*(size+1));
+    memcpy(string, str, size);
+    string[size] = '\0';
     
     return string;
 }
 
-void delstr(STRING *_self) {
+void delstr(char *_self) {
     /* Return if pointer is null
-     * Free struct otherwise */
+     * Free otherwise */
     if(!_self)
         return;
-    free(_self->charptr);
     free(_self);
 }
 
-STRING *join(int n, STRING *_self, ...) {
+char *join(int n, char *_self, ...) {
     if(!_self)
         return NULL;
     
@@ -40,126 +37,132 @@ STRING *join(int n, STRING *_self, ...) {
     /* n gets reduced in 1 because _self is not counted on loop */
     n--;
 
-    /* Copy STRING *_self on a new string */
-    STRING *ret = newstr(_self->charptr);
+    /* Copy char *_self on a new string */
+    char *ret = newstr(_self);
+    int ret_len = strlen(ret);
 
     va_start(vl, _self);
 
     /* Number of arguments supposed to be n */
     for(t = 0; t < n; t++) {
-        /* Get string for argument and extend STRING *ret size */
-        STRING* _str = va_arg(vl, STRING*);
+        /* Get string for argument and extend char *ret size */
+        char *_str = va_arg(vl, char *);
         if(!_str)
             continue;
-        ret->charptr = (char *) realloc (ret->charptr,
-                                           sizeof(char)*(ret->length+_str->length+1));
+
+        int arg_len = strlen(_str);
+        ret = (char *) realloc (ret,
+                sizeof(char)*(ret_len+arg_len+1));
 
         /* Concatenate each char of argument on ret */
-        for(i = 0; i < _str->length; i++)
-            (ret->charptr)[ret->length+i] = (_str->charptr)[i];
-        ret->length += (_str->length);
+        for(i = 0; i < arg_len; i++)
+            ret[ret_len+i] = _str[i];
+        ret_len += arg_len;
     }
     /* Append '\0' and end va_list */
     va_end(vl);
-    (ret->charptr)[ret->length] = '\0';
+    ret[ret_len] = '\0';
     return ret;
 }
 
-void concat(int n, STRING *_self, ...) {
+void concat(int n, char *_self, ...) {
     if(!_self)
         return;
 
     va_list vl;
     int t;
     unsigned int i;
-    
+    int self_len = strlen(_self);
+
     /* n gets reduced in 1 because _self is not counted on loop */
     n--;
 
     va_start(vl, _self);
 
+    printf("Self address before loop: %p\n", _self);
     /* Number of arguments supposed to be n */
     for(t = 0; t < n; t++) {
-        /* Get string for argument and extend STRING *_self size */
-        STRING* _str = va_arg(vl, STRING*);
+        /* Get string for argument and extend char *_self size */
+        char *_str = va_arg(vl, char *);
         if(!_str)
             continue;
-        _self->charptr = (char *) realloc (_self->charptr,
-                                           sizeof(char)*(_self->length+_str->length+1));
+        int arg_len = strlen(_str);
 
+        _self = (char *) realloc (_self,
+                sizeof(char)*(self_len+arg_len+1));
+
+        printf("Self address during loop: %p\n", _self);
         /* Concatenate each char of argument on self */
-        for(i = 0; i < _str->length; i++)
-            (_self->charptr)[_self->length+i] = (_str->charptr)[i];
-        _self->length += (_str->length);
+        for(i = 0; i < arg_len; i++)
+            _self[self_len+i] = _str[i];
+        self_len += arg_len;
     }
     /* Append '\0' and end va_list */
     va_end(vl);
-    (_self->charptr)[_self->length] = '\0';
+    _self[self_len] = '\0';
+
+    printf("Self address after loop: %p\n", _self);
 }
 
-STRING *substring(STRING *_self, int begin, int end) {
-    if(begin < 0 || begin > _self->length);
+char *substring(char *_self, int begin, int end) {
+    if(begin < 0 || begin > strlen(_self));
         return NULL;
-    if(end < 0 || end > _self->length);
+    if(end < 0 || end > strlen(_self));
         return NULL;
     if(begin > end || !_self)
         return NULL;
 
     /* allocate needed size */
-    STRING *sub = (STRING *) malloc (sizeof(STRING));
+    char *sub;
     int k, i = 0;
-    sub->charptr = (char *) malloc (sizeof(char)*(end-begin+1));
+    sub = (char *) malloc (sizeof(char)*(end-begin+1));
     
     /* Copy each char from substring and append '\0' */
     for(k = begin; k < end; k++, i++)
-        (sub->charptr)[i] = (_self->charptr)[k];
-    (sub->charptr)[i] = '\0';
-    /* Set length */
-    sub->length = end-begin;
+        sub[i] = _self[k];
+    sub[i] = '\0';
     
     return sub;
 }
 
-STRING **split(STRING *_self, int *nstrings, char *delims) {
+char **split(char *_self, int *nstrings, char *delims) {
     /* Return NULL if any given pointer is NULL */
     if(!_self || !nstrings)
         return NULL;
 
     /* If delims is null, return given string */
     if(!delims) {
-        STRING **allstrings = (STRING **) malloc (sizeof(STRING *));
-        allstrings[0] = newstr(_self->charptr);
+        char **allstrings = (char **) malloc (sizeof(char *));
+        allstrings[0] = newstr(_self);
         *nstrings = 1;
         return allstrings;
     }
     int i, k, t;
-    STRING **allstrings = NULL;
-    STRING *strdelims = newstr(delims);
+    int self_len = strlen(_self), delims_len = strlen(delims);
+    char **allstrings = NULL;
     char *aux = NULL;
     *nstrings = 0;
     
-    for(i = 0, t = 0; i < _self->length; i++) {
+    for(i = 0, t = 0; i < self_len; i++) {
         /* Insert char on auxiliary string */
         aux = (char *) realloc (aux, sizeof(char)*(t+1));
-        aux[t++] = (_self->charptr)[i];
+        aux[t++] = _self[i];
 
         /* Check if char is equal to each delimiter */
-        for(k = 0; k < strdelims->length; k++) {
-            if(aux[t-1] == (strdelims->charptr)[k]) {
+        for(k = 0; k < delims_len; k++) {
+            if(aux[t-1] == delims[k]) {
                 /* If delimiter appears, end string
                  * and insert on 'allstrings' */
                 aux[t-1] = '\0';
 
                 /* Insert on result only if aux->length > 1 */
                 if(t > 1) {
-                    allstrings = (STRING **) realloc (allstrings,
-                                                      sizeof(STRING *)*((*nstrings)+1));
-                    STRING *tmp = newstr(aux);
-                    allstrings[(*nstrings)++] = tmp;
+                    allstrings = (char **) realloc (allstrings,
+                            sizeof(char *)*((*nstrings)+1));
+                    allstrings[(*nstrings)++] = aux;
                 }
                 
-                /* Free and repeat */
-                free(aux);
+                /* Prepare to repeat */
                 aux = NULL;
                 t = 0;
                 break;
@@ -169,17 +172,15 @@ STRING **split(STRING *_self, int *nstrings, char *delims) {
     /* Verify and insert final word */
     if(aux) {
         aux[t] = '\0';
-        allstrings = (STRING **) realloc (allstrings,
-                                          sizeof(STRING *)*((*nstrings)+1));
-        STRING *tmp = newstr(aux);
-        allstrings[(*nstrings)++] = tmp;
-        free(aux);
+        allstrings = (char **) realloc (allstrings,
+                sizeof(char *)*((*nstrings)+1));
+        allstrings[(*nstrings)++] = aux;
     }
-    delstr(strdelims);
+    
     return allstrings;
 }
 
-void delsplit(STRING **s, int n) {
+void delsplit(char **s, int n) {
     /* Check if pointers are null
      * and free them */
     if(!s)
@@ -188,4 +189,22 @@ void delsplit(STRING **s, int n) {
     for(i = 0; i < n; i++)
         free(s[i]);
     free(s);
+}
+
+int main() {
+
+    char *s = newstr("Pipoca");
+    char *t = newstr(" ");
+    char *u = newstr("Melada");
+    char *j = join(3, s, t, u);
+    printf("Self address before concat: %p\n", s);
+    concat(3, s, t, u);
+    printf("Self address after concat: %p\n", s);
+    printf("S: '%s'\n", s);
+    printf("J: '%s'\n", j);
+    int n;
+    char **sp = split(j, &n, " ");
+    for(int i = 0; i < n; i++)
+        printf("sp[%d]: '%s'\n", i, sp[i]);
+
 }
