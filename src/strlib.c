@@ -190,21 +190,3 @@ void delsplit(char **s, int n) {
         free(s[i]);
     free(s);
 }
-
-int main() {
-
-    char *s = newstr("Pipoca");
-    char *t = newstr(" ");
-    char *u = newstr("Melada");
-    char *j = join(3, s, t, u);
-    printf("Self address before concat: %p\n", s);
-    concat(3, s, t, u);
-    printf("Self address after concat: %p\n", s);
-    printf("S: '%s'\n", s);
-    printf("J: '%s'\n", j);
-    int n;
-    char **sp = split(j, &n, " ");
-    for(int i = 0; i < n; i++)
-        printf("sp[%d]: '%s'\n", i, sp[i]);
-
-}
