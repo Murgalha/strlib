@@ -79,7 +79,6 @@ void concat(int n, char *_self, ...) {
 
     va_start(vl, _self);
 
-    printf("Self address before loop: %p\n", _self);
     /* Number of arguments supposed to be n */
     for(t = 0; t < n; t++) {
         /* Get string for argument and extend char *_self size */
@@ -91,7 +90,6 @@ void concat(int n, char *_self, ...) {
         _self = (char *) realloc (_self,
                 sizeof(char)*(self_len+arg_len+1));
 
-        printf("Self address during loop: %p\n", _self);
         /* Concatenate each char of argument on self */
         for(i = 0; i < arg_len; i++)
             _self[self_len+i] = _str[i];
@@ -100,8 +98,6 @@ void concat(int n, char *_self, ...) {
     /* Append '\0' and end va_list */
     va_end(vl);
     _self[self_len] = '\0';
-
-    printf("Self address after loop: %p\n", _self);
 }
 
 char *substring(char *_self, int begin, int end) {
