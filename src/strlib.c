@@ -98,7 +98,6 @@ void concat(int n, char *_self, ...) {
     /* Append '\0' and end va_list */
     va_end(vl);
     _self[self_len] = '\0';
-
 }
 
 char *substring(char *_self, int begin, int end) {
