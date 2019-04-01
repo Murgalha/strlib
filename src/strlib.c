@@ -105,9 +105,9 @@ void concat(int n, char *_self, ...) {
 }
 
 char *substring(char *_self, int begin, int end) {
-    if(begin < 0 || begin > strlen(_self));
+    if(begin < 0 || begin > strlen(_self))
         return NULL;
-    if(end < 0 || end > strlen(_self));
+    if(end < 0 || end > strlen(_self))
         return NULL;
     if(begin > end || !_self)
         return NULL;
